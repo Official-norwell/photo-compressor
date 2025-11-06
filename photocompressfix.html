@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Compressor & Optimizer</title>
+    
+    
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <style>
+        /* CSS Variables - Matching your portfolio's theme */
+        :root {
+            --bg-color: #0d1117; 
+            --card-bg: #161b22; 
+            --text-color: #e6edf3; 
+            --text-light: #8b949e; 
+            --border-color: #30363d; 
+            --accent-color: #2f81f7; 
+            --glow-color: rgba(47, 129, 247, 0.2); 
+            --success-color: #2ea043; 
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.4); 
+            --transition-speed: 0.2s; 
+            scroll-behavior: smooth; 
+        }
+
+        /* General Styles */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            background-color: var(--card-bg);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            width: 95%;
+            max-width: 900px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border-color);
+            animation: fadeIn 0.8s ease-out;
+        }
+        h1 {
+            color: var(--accent-color);
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.2em;
+            font-weight: 700;
+            text-shadow: 0 0 8px var(--glow-color);
+        }
+        
+        /* Information Panel */
+        .info-panel {
+            background-color: #1a2027;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        .info-panel h2 {
+            color: var(--success-color);
+            font-size: 1.4em;
+            margin-top: 0;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .info-panel p {
+            color: var(--text-light);
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+        .info-panel strong {
+            color: var(--text-color);
+            font-weight: 600;
+        }
+
+
+        /* File Input */
+        .file-input-wrapper {
+            position: relative;
+            margin-bottom: 30px;
+            display: block;
+            width: 100%;
+            height: 48px; 
+        }
+        input[type="file"] {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+            padding: 0;
+            margin: 0; 
+            z-index: 10;
+        }
+        .custom-file-upload {
+            display: block;
+            background: #21262d;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-light);
+            font-size: 1.1em;
+            padding: 15px;
+            text-align: center;
+            transition: all var(--transition-speed) ease;
+            font-weight: 500;
+            pointer-events: none; 
+            position: absolute; 
+            width: 100%;
+            box-sizing: border-box;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .file-input-wrapper:hover .custom-file-upload {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 5px var(--glow-color);
+            color: var(--text-color);
+        }
+        
+        /* Layout: Image Panels Wrapper */
+        .image-panels-wrapper {
+            display: flex;
+            flex-wrap: wrap; 
+            gap: 25px;
+            margin-top: 25px;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        /* Image Panel (Original/Compressed) */
+        .image-panel {
+            flex: 1 0 40%; 
+            max-width: 45%; 
+            min-width: 300px; 
+            background-color: #1a2027; 
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .image-panel h3 {
+            color: var(--text-color);
+            margin-bottom: 15px;
+            font-size: 1.3em;
+            font-weight: 600;
+        }
+        .image-panel img {
+            max-width: 100%;
+            max-height: 300px; 
+            object-fit: contain;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            background-color: var(--bg-color); 
+            margin-bottom: 15px;
+            flex-shrink: 0; 
+        }
+        .info-text {
+            font-size: 0.95em;
+            color: var(--text-light);
+            margin-top: auto; 
+        }
+        
+        /* Settings Panel */
+        .settings-panel {
+            flex: 1 1 100%; 
+            text-align: center;
+            margin: 30px auto; 
+            padding: 30px;
+            border: 1px dashed var(--accent-color);
+            border-radius: 10px;
+            background-color: #1a2027;
+            width: -70%;
+            max-width: 600px;
+            order: 3; 
+        }
+        /* FIX: Center the label text and control its width precisely */
+        .settings-panel label {
+            /* Text centering properties */
+            display: block;
+            margin: 0 auto 15px auto; /* Centers the block itself */
+            
+            /* Sizing and flow control */
+            width: 90%; /* Control width relative to parent */
+            max-width: 450px; /* Prevent it from stretching too far, forcing better centering */
+
+            font-weight: 500;
+            color: var(--text-light);
+            font-size: 1.05em;
+            word-wrap: break-word; 
+            overflow-wrap: break-word; 
+        }
+        
+        /* Correcting the flow for wide screens where panels are side-by-side */
+        @media (min-width: 769px) {
+            .image-panels-wrapper {
+                flex-wrap: nowrap; 
+                justify-content: space-between;
+                max-width: 900px; 
+                width: 100%;
+                gap: 20px;
+            }
+            .image-panel {
+                flex: 1 1 45%;
+                max-width: 45%;
+                min-width: 0; 
+                order: initial; 
+            }
+            .settings-panel {
+                order: 1; 
+                margin: 0 0 30px 0;
+                max-width: 900px; 
+            }
+        }
+
+
+        /* Slider Styling */
+        input[type="range"] {
+            -webkit-appearance: none;
+            width: 85%; 
+            height: 10px;
+            background: var(--border-color);
+            outline: none;
+            opacity: 0.9;
+            transition: opacity var(--transition-speed);
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+        input[type="range"]:hover { opacity: 1; }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--accent-color);
+            cursor: grab;
+            border: 2px solid var(--text-color);
+            box-shadow: 0 0 5px var(--glow-color);
+            transition: background-color var(--transition-speed), border-color var(--transition-speed);
+        }
+        input[type="range"]::-webkit-slider-thumb:active { cursor: grabbing; }
+        
+        /* Quality Value Display */
+        #qualityValue {
+            font-weight: 600;
+            color: var(--accent-color);
+            font-size: 1.1em;
+            margin-left: 5px;
+        }
+        
+        /* Buttons */
+        #compressButton {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: background-color var(--transition-speed), transform var(--transition-speed), box-shadow var(--transition-speed);
+            margin-top: 20px;
+            font-weight: 600;
+        }
+        #compressButton:hover {
+            background-color: #1f6feb;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px var(--glow-color);
+        }
+        #compressButton:disabled {
+            background-color: #30363d;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        #downloadLink {
+            display: none; 
+            text-decoration: none;
+            background-color: var(--success-color);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 1.2em;
+            font-weight: 700;
+            transition: background-color var(--transition-speed), transform var(--transition-speed), box-shadow var(--transition-speed);
+            margin-top: 25px;
+            display: inline-flex; 
+            align-items: center;
+            gap: 10px;
+        }
+        #downloadLink:hover {
+            background-color: #268d37;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(46, 160, 67, 0.4);
+        }
+        
+        /* Footer Styling */
+        footer {
+            width: 100%;
+            max-width: 900px;
+            text-align: center;
+            padding: 20px 0;
+            margin-top: 40px;
+            border-top: 1px solid var(--border-color);
+            color: var(--text-light);
+            font-size: 0.9em;
+        }
+        footer strong {
+            color: var(--text-color);
+            font-weight: 500;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container { padding: 20px; }
+            h1 { font-size: 1.8em; margin-bottom: 25px; }
+            .image-panels-wrapper { flex-direction: column; align-items: center; }
+            .image-panel { flex: 1 1 100%; max-width: 95%; }
+            .settings-panel { padding: 25px; max-width: 95%; order: 2; } 
+            input[type="range"] { width: 95%; } 
+            
+            /* Ensure the label is centered even on mobile by removing max-width */
+            .settings-panel label {
+                width: 95%;
+                max-width: none;
+            }
+        }
+        @media (max-width: 480px) {
+            body { padding: 10px; }
+            .container { padding: 15px; }
+            h1 { font-size: 1.5em; margin-bottom: 20px; }
+            .custom-file-upload { font-size: 1em; padding: 12px; }
+            .image-panel img { max-height: 250px; }
+            #compressButton, #downloadLink { padding: 10px 20px; font-size: 1em; }
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Image Compressor & Optimizer 🖼️</h1>
+
+        <div class="info-panel">
+            <h2><i class="fas fa-info-circle"></i> Understanding Image Compression</h2>
+            <p>This tool performs **lossy compression** (JPEG format) right in your browser. This process intelligently reduces file size by removing data that is least noticeable to the human eye, directly affecting image quality.</p>
+            <p><strong>How it helps:</strong> Smaller files mean **faster website loading speeds**, reduced bandwidth usage, and more storage space. You can easily balance file size against visual quality using the slider.</p>
+        </div>
+
+        <div class="file-input-wrapper">
+            <input type="file" id="imageUpload" accept="image/jpeg, image/png, image/webp" aria-label="Upload Image">
+            <div class="custom-file-upload">
+                <i class="fas fa-upload"></i> Click here to select an image file (JPEG, PNG, WebP)
+            </div>
+        </div>
+        
+        <div class="settings-panel" id="settingsPanel" style="display: none;">
+            <label for="qualityInput">Adjust Compression Quality (0.01 = Max Compression, 0.99 = Max Quality):</label>
+            <input type="range" id="qualityInput" min="0.01" max="0.99" step="0.01" value="0.80">
+            <p>Current Quality: <span id="qualityValue">0.80</span></p>
+            <button id="compressButton">Compress Image</button>
+        </div>
+
+        <div class="image-panels-wrapper">
+            
+            <div class="image-panel" id="originalPanel" style="display: none;">
+                <h3>Original Photo</h3>
+                <img id="originalImage" alt="Original Uploaded Image">
+                <p class="info-text">Original Size: <span id="originalSize">N/A</span></p>
+            </div>
+            
+            <div class="image-panel" id="compressedPanel" style="display: none;">
+                <h3>Compressed Photo</h3>
+                <img id="compressedImage" alt="Compressed Image Preview">
+                <p class="info-text">New Size: <span id="compressedSize">N/A</span></p>
+                
+                <a href="#" id="downloadLink" download="compressed_image.jpeg">
+                    <i class="fas fa-download"></i> Download Compressed Image
+                </a>
+            </div>
+        </div>
+        
+    </div>
+
+    <footer>
+        Made post by **Norwell**
+    </footer>
+
+    <canvas id="imageCanvas" style="display:none;"></canvas>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const imageUpload = document.getElementById('imageUpload');
+            const originalImage = document.getElementById('originalImage');
+            const originalSizeSpan = document.getElementById('originalSize');
+            const originalPanel = document.getElementById('originalPanel');
+            
+            const compressedImage = document.getElementById('compressedImage');
+            const compressedSizeSpan = document.getElementById('compressedSize');
+            const compressedPanel = document.getElementById('compressedPanel');
+            const downloadLink = document.getElementById('downloadLink');
+            
+            const qualityInput = document.getElementById('qualityInput');
+            const qualityValueSpan = document.getElementById('qualityValue');
+            const compressButton = document.getElementById('compressButton');
+            const settingsPanel = document.getElementById('settingsPanel');
+            const canvas = document.getElementById('imageCanvas');
+            const ctx = canvas.getContext('2d');
+
+            let originalFile = null;
+            let loadedImage = new Image();
+            let objectUrls = []; 
+
+            // --- Utility Function: Format File Size ---
+            const formatBytes = (bytes) => {
+                if (bytes === 0) return '0 Bytes';
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            };
+
+            // --- Function to Clean Up Object URLs ---
+            const cleanupUrls = () => {
+                objectUrls.forEach(url => URL.revokeObjectURL(url));
+                objectUrls = [];
+            };
+
+            // --- 1. Handle File Upload and Preview ---
+            imageUpload.addEventListener('change', (event) => {
+                cleanupUrls(); 
+
+                originalFile = event.target.files[0];
+                if (!originalFile || !originalFile.type.startsWith('image/')) {
+                    alert('Please select a valid image file (JPEG, PNG, WebP).');
+                    event.target.value = ''; 
+                    originalPanel.style.display = 'none';
+                    settingsPanel.style.display = 'none';
+                    compressedPanel.style.display = 'none';
+                    downloadLink.style.display = 'none';
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    originalImage.src = e.target.result;
+                    
+                    loadedImage.onload = () => {
+                        originalPanel.style.display = 'flex'; 
+                        settingsPanel.style.display = 'block';
+                        compressedPanel.style.display = 'none';
+                        downloadLink.style.display = 'none';
+
+                        originalSizeSpan.textContent = formatBytes(originalFile.size);
+                        compressedImage.removeAttribute('src');
+                        compressedSizeSpan.textContent = 'N/A';
+
+                        qualityInput.value = 0.80;
+                        qualityValueSpan.textContent = '0.80';
+                        
+                        canvas.width = loadedImage.naturalWidth;
+                        canvas.height = loadedImage.naturalHeight;
+                    };
+                    loadedImage.src = e.target.result;
+                };
+                reader.readAsDataURL(originalFile);
+            });
+
+            // --- 2. Handle Quality Slider Input ---
+            qualityInput.addEventListener('input', () => {
+                qualityValueSpan.textContent = parseFloat(qualityInput.value).toFixed(2); 
+            });
+
+            // --- 3. Handle Compression ---
+            compressButton.addEventListener('click', () => {
+                if (!originalFile) {
+                    alert('Please upload an image first.');
+                    return;
+                }
+                
+                // Show loading state
+                compressButton.innerHTML = '<i class="fas fa-sync-alt fa-spin"></i> Compressing...';
+                compressButton.disabled = true;
+
+                // Redraw the original image onto the canvas every time.
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(loadedImage, 0, 0, canvas.width, canvas.height);
+                
+                const quality = parseFloat(qualityInput.value);
+                const mimeType = 'image/jpeg'; 
+
+                canvas.toBlob((blob) => {
+                    // Reset button state
+                    compressButton.innerHTML = 'Compress Image';
+                    compressButton.disabled = false;
+
+                    if (blob && blob.size > 0) {
+                        // Revoke the *previous* compressed URL before creating a new one
+                        if (compressedImage.src && compressedImage.src.startsWith('blob:')) {
+                             URL.revokeObjectURL(compressedImage.src);
+                        }
+                        
+                        const compressedUrl = URL.createObjectURL(blob);
+                        objectUrls.push(compressedUrl); 
+                        
+                        compressedImage.src = compressedUrl;
+                        compressedSizeSpan.textContent = formatBytes(blob.size);
+                        compressedPanel.style.display = 'flex'; 
+                        
+                        downloadLink.href = compressedUrl;
+                        let name = originalFile.name.split('.')[0];
+                        let newExtension = mimeType.split('/')[1];
+                        downloadLink.download = `compressed_${name}.${newExtension}`;
+                        downloadLink.style.display = 'inline-flex'; 
+                        
+                        // --- Auto Scroll ---
+                        compressedPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        
+                    } else {
+                        alert('Compression failed. Please ensure the image is valid and try a different quality setting.');
+                    }
+                }, mimeType, quality);
+            });
+        });
+    </script>
+</body>
+</html>
